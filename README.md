@@ -11,7 +11,7 @@ It has two endpoints:
     "rule": {
         "field": "2",
         "condition": "contains",
-        "condition_value": "a
+        "condition_value": "a"
     },
     "data": "Helen of Troy"
     }
