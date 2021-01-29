@@ -1,25 +1,26 @@
-## This project Rule Validator was built with Node.js
+## This project is a  Rule Validator was built with Node.js
 
 It has two endpoints:
 - Get '/': 
     This returns a few data about myself
 
 - POST '/validate-rule':
-    This route must use the JSEND pattern like;
+    This route must use accept a proper JSON object like;
     
     {
-    "message": "API response message",
-    "status": "success",
-    "data": {
-        isValidForRule: true,
-    }
+    "rule": {
+        "field": "2",
+        "condition": "contains",
+        "condition_value": "a
+    },
+    "data": "Helen of Troy"
     }
 
     or
 
     {
     "rule": {
-        "field": "missions"
+        "field": "missions",
         "condition": "gte",
         "condition_value": 30
     },
