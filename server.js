@@ -31,7 +31,7 @@ app.get('/validate-rule', (req,res)=>{
 
 app.post('/validate-rule', check, validate_data, validate_rule, 
         validate_rule_fields, conditions, check_field_obj, check_field_array,
-         check_field_string, prevalidate, (req, res, next)=>{
+         check_field_string, absolute_verify, prevalidate, (req, res, next)=>{
 
     let user = req.body
     let {field, condition, condition_value} = user.rule
@@ -69,6 +69,15 @@ app.post('/validate-rule', check, validate_data, validate_rule,
     
     
 })
+
+app.use(function (err, req, res, next) {
+    let message = err.toString().split("\n")[0];
+    return res.status(500).json({
+        "message": `An error occured, please check your input data again: ${message}.`,
+        "status": "error",
+        "data": null
+    })
+  })
 
 // Validate function
 function validate(type, data1, data2){
@@ -217,21 +226,30 @@ function conditions(req,res,next){
 function check_field_obj(req, res, next){
     let field = req.body.rule.field
     let data = req.body.data
-    let keys = Object.keys(data)
-    let ress = keys.includes(field.trim())
     
     if(Array.isArray(data) || (typeof data === 'string' || data instanceof String)){
         next()
         return
     }
 
-    if(ress){
-        req.fieldChecked = true
-        next()
-        return
-    }else{
+    try{
+        let keys = Object.keys(data)
+        let ress = keys.includes(field.trim())
+
+        if(ress){
+            req.fieldChecked = true
+            next()
+            return
+        }else{
+            res.status(400).json({
+                "message": `field ${field} is missing from data.`,
+                "status": "error",
+                "data": null
+            })
+        }
+    }catch(e){
         res.status(400).json({
-            "message": `field ${field} is missing from data.`,
+            "message": "Invalid JSON payload passed.",
             "status": "error",
             "data": null
           })
@@ -304,6 +322,18 @@ function check_field_string(req,res,next){
           })
     }
 
+}
+
+function absolute_verify(req, res, next){
+    if(req.fieldChecked){
+        next()
+        return
+    }
+    res.status(400).json({
+        "message": "Invalid JSON payload passed.",
+        "status": "error",
+        "data": null
+      })
 }
 
 //listener
